@@ -25,8 +25,8 @@ import javax.swing.event.ListSelectionListener;
 
 import main.java.memoranda.CurrentNote;
 import main.java.memoranda.CurrentProject;
-import main.java.memoranda.Note;
 import main.java.memoranda.date.CurrentDate;
+import main.java.memoranda.interfaces.INote;
 import main.java.memoranda.util.Configuration;
 import main.java.memoranda.util.CurrentStorage;
 import main.java.memoranda.util.Local;
@@ -240,7 +240,7 @@ public class NotesControlPanel extends JPanel {
     }
 
     void setActiveNote() {
-        Note note = (Note) notesList.getNote(notesList.getSelectedIndex());
+        INote note = (INote) notesList.getNote(notesList.getSelectedIndex());
         CurrentDate.set(note.getDate());
 		CurrentNote.set(note,true);
     }
@@ -255,7 +255,7 @@ public class NotesControlPanel extends JPanel {
 
     void ppAddBkmrk_actionPerformed(ActionEvent e) {
         for (int i = 0; i < notesList.getSelectedIndices().length; i++) {
-            Note note = (Note) notesList.getNote(notesList.getSelectedIndices()[i]);
+            INote note = (INote) notesList.getNote(notesList.getSelectedIndices()[i]);
             note.setMark(true);
         }
         notesList.updateUI();
@@ -278,7 +278,7 @@ public class NotesControlPanel extends JPanel {
             msg =
                 Local.getString("Clear note")
                     + "\n'"
-                    + ((Note) notesList.getNote(notesList.getSelectedIndex())).getDate().getFullDateString()
+                    + ((INote) notesList.getNote(notesList.getSelectedIndex())).getDate().getFullDateString()
                     + "'\n"
                     + Local.getString("Are you sure?");
 
@@ -292,7 +292,7 @@ public class NotesControlPanel extends JPanel {
             return;
 
         for (int i = 0; i < notesList.getSelectedIndices().length; i++) {
-            Note note = (Note) notesList.getNote(notesList.getSelectedIndices()[i]);
+            INote note = (INote) notesList.getNote(notesList.getSelectedIndices()[i]);
 			if(CurrentProject.getNoteList().getActiveNote() != null && note.getDate().equals(CurrentProject.getNoteList().getActiveNote().getDate())){ 
 				/*Debug*/ System.out.println("[DEBUG] Current note removed");
 				CurrentNote.set(null,true);
@@ -324,7 +324,7 @@ public class NotesControlPanel extends JPanel {
 
     void ppRemoveBkmrk_actionPerformed(ActionEvent e) {
         for (int i = 0; i < notesList.getSelectedIndices().length; i++) {
-            Note note = (Note) notesList.getNote(notesList.getSelectedIndices()[i]);
+            INote note = (INote) notesList.getNote(notesList.getSelectedIndices()[i]);
             note.setMark(false);
         }
         bookmarksListPanel.notesList.update();
@@ -337,9 +337,9 @@ public class NotesControlPanel extends JPanel {
     void ppSetEnabled() {
     boolean enbl = (notesList.getModel().getSize() > 0) && (notesList.getSelectedIndex() > -1);
 
-    ppRemoveBkmrk.setEnabled(enbl && (((Note) notesList.getNote(notesList.getSelectedIndex())).isMarked())
+    ppRemoveBkmrk.setEnabled(enbl && (((INote) notesList.getNote(notesList.getSelectedIndex())).isMarked())
     				|| notesList.getSelectedIndices().length > 1);
-    ppAddBkmrk.setEnabled(enbl && !(((Note) notesList.getNote(notesList.getSelectedIndex())).isMarked())
+    ppAddBkmrk.setEnabled(enbl && !(((INote) notesList.getNote(notesList.getSelectedIndex())).isMarked())
     				|| notesList.getSelectedIndices().length > 1);
     ppOpenNote.setEnabled(enbl);
     ppClearNote.setEnabled(enbl);

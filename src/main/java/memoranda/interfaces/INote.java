@@ -6,25 +6,29 @@
  * @author Alex V. Alishevskikh, alex@openmechanics.net
  * Copyright (c) 2003 Memoranda Team. http://memoranda.sf.net
  */
-package main.java.memoranda;
+package main.java.memoranda.interfaces;
 
 import main.java.memoranda.date.CalendarDate;
+
 /**
  * 
  */
-/*$Id: Note.java,v 1.4 2004/09/30 17:19:52 ivanrise Exp $*/
-public interface Note {
-    
-    CalendarDate getDate();
-    
-    String getTitle();
-    void setTitle(String s);
-    
+/* $Id: Note.java,v 1.4 2004/09/30 17:19:52 ivanrise Exp $ */
+public interface INote {
+
+	CalendarDate getDate();
+
+	String getTitle();
+
+	void setTitle(String s);
+
 	String getId();
+
 	void setId(String s);
-	
-    boolean isMarked();
-    void setMark(boolean mark);
-        
-    Project getProject();
+
+	boolean isMarked();
+
+	void setMark(boolean mark);
+
+	IProject getProject();
 }

@@ -28,9 +28,9 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import main.java.memoranda.Project;
 import main.java.memoranda.ProjectManager;
 import main.java.memoranda.date.CalendarDate;
+import main.java.memoranda.interfaces.IProject;
 import main.java.memoranda.util.CurrentStorage;
 import main.java.memoranda.util.Local;
 
@@ -322,7 +322,7 @@ public class ProjectDialog extends JDialog {
         CalendarDate endD = null;
         if (dlg.endDateChB.isSelected())
             endD = new CalendarDate((Date) dlg.endDate.getModel().getValue());
-        Project prj = ProjectManager.createProject(title, startD, endD);
+        IProject prj = ProjectManager.createProject(title, startD, endD);
         /*if (dlg.freezeChB.isSelected())
             prj.freeze();*/
         CurrentStorage.get().storeProjectManager();

@@ -6,7 +6,7 @@
  * @author Alex V. Alishevskikh, alex@openmechanics.net
  * Copyright (c) 2003 Memoranda Team. http://memoranda.sf.net
  */
-package main.java.memoranda;
+package main.java.memoranda.interfaces;
 
 import main.java.memoranda.date.CalendarDate;
 
@@ -15,7 +15,7 @@ import main.java.memoranda.date.CalendarDate;
  */
 
 /*$Id: Project.java,v 1.5 2004/11/22 10:02:37 alexeya Exp $*/
-public interface Project {
+public interface IProject {
     
     public static final int SCHEDULED = 0;
    

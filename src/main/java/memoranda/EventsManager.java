@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import main.java.memoranda.date.CalendarDate;
+import main.java.memoranda.interfaces.IEvent;
 import main.java.memoranda.util.CurrentStorage;
 import main.java.memoranda.util.Util;
 
@@ -30,11 +31,12 @@ import nu.xom.ParentNode;
 /**
  *  
  */
-/*$Id: EventsManager.java,v 1.11 2004/10/06 16:00:11 ivanrise Exp $*/
+/* $Id: EventsManager.java,v 1.11 2004/10/06 16:00:11 ivanrise Exp $ */
 public class EventsManager {
-/*	public static final String NS_JNEVENTS =
-		"http://www.openmechanics.org/2003/jnotes-events-file";
-*/
+	/*
+	 * public static final String NS_JNEVENTS =
+	 * "http://www.openmechanics.org/2003/jnotes-events-file";
+	 */
 	public static final int NO_REPEAT = 0;
 	public static final int REPEAT_DAILY = 1;
 	public static final int REPEAT_WEEKLY = 2;
@@ -48,9 +50,10 @@ public class EventsManager {
 		CurrentStorage.get().openEventsManager();
 		if (_doc == null) {
 			_root = new Element("eventslist");
-/*			_root.addNamespaceDeclaration("jnevents", NS_JNEVENTS);
-			_root.appendChild(
-				new Comment("This is JNotes 2 data file. Do not modify.")); */
+			/*
+			 * _root.addNamespaceDeclaration("jnevents", NS_JNEVENTS); _root.appendChild(
+			 * new Comment("This is JNotes 2 data file. Do not modify."));
+			 */
 			_doc = new Document(_root);
 		} else
 			_root = _doc.getRootElement();
@@ -60,7 +63,7 @@ public class EventsManager {
 	public static void createSticker(String text, int prior) {
 		Element el = new Element("sticker");
 		el.addAttribute(new Attribute("id", Util.generateId()));
-		el.addAttribute(new Attribute("priority", prior+""));
+		el.addAttribute(new Attribute("priority", prior + ""));
 		el.appendChild(text);
 		_root.appendChild(el);
 	}
@@ -107,16 +110,12 @@ public class EventsManager {
 		Collection r = getRepeatableEventsForDate(date);
 		if (r.size() > 0)
 			v.addAll(r);
-		//EventsVectorSorter.sort(v);
+		// EventsVectorSorter.sort(v);
 		Collections.sort(v);
 		return v;
 	}
 
-	public static Event createEvent(
-		CalendarDate date,
-		int hh,
-		int mm,
-		String text) {
+	public static IEvent createEvent(CalendarDate date, int hh, int mm, String text) {
 		Element el = new Element("event");
 		el.addAttribute(new Attribute("id", Util.generateId()));
 		el.addAttribute(new Attribute("hour", String.valueOf(hh)));
@@ -129,15 +128,8 @@ public class EventsManager {
 		return new EventImpl(el);
 	}
 
-	public static Event createRepeatableEvent(
-		int type,
-		CalendarDate startDate,
-		CalendarDate endDate,
-		int period,
-		int hh,
-		int mm,
-		String text,
-		boolean workDays) {
+	public static IEvent createRepeatableEvent(int type, CalendarDate startDate, CalendarDate endDate, int period,
+			int hh, int mm, String text, boolean workDays) {
 		Element el = new Element("event");
 		Element rep = _root.getFirstChildElement("repeatable");
 		if (rep == null) {
@@ -153,7 +145,7 @@ public class EventsManager {
 			el.addAttribute(new Attribute("endDate", endDate.toString()));
 		el.addAttribute(new Attribute("period", String.valueOf(period)));
 		// new attribute for wrkin days - ivanrise
-		el.addAttribute(new Attribute("workingDays",String.valueOf(workDays)));
+		el.addAttribute(new Attribute("workingDays", String.valueOf(workDays)));
 		el.appendChild(text);
 		rep.appendChild(el);
 		return new EventImpl(el);
@@ -174,42 +166,37 @@ public class EventsManager {
 		Vector reps = (Vector) getRepeatableEvents();
 		Vector v = new Vector();
 		for (int i = 0; i < reps.size(); i++) {
-			Event ev = (Event) reps.get(i);
-			
+			IEvent ev = (IEvent) reps.get(i);
+
 			// --- ivanrise
 			// ignore this event if it's a 'only working days' event and today is weekend.
-			if(ev.getWorkingDays() && (date.getCalendar().get(Calendar.DAY_OF_WEEK) == 1 ||
-				date.getCalendar().get(Calendar.DAY_OF_WEEK) == 7)) continue;
+			if (ev.getWorkingDays() && (date.getCalendar().get(Calendar.DAY_OF_WEEK) == 1
+					|| date.getCalendar().get(Calendar.DAY_OF_WEEK) == 7))
+				continue;
 			// ---
 			/*
-			 * /if ( ((date.after(ev.getStartDate())) &&
-			 * (date.before(ev.getEndDate()))) ||
+			 * /if ( ((date.after(ev.getStartDate())) && (date.before(ev.getEndDate()))) ||
 			 * (date.equals(ev.getStartDate()))
 			 */
-			//System.out.println(date.inPeriod(ev.getStartDate(),
+			// System.out.println(date.inPeriod(ev.getStartDate(),
 			// ev.getEndDate()));
 			if (date.inPeriod(ev.getStartDate(), ev.getEndDate())) {
 				if (ev.getRepeat() == REPEAT_DAILY) {
 					int n = date.getCalendar().get(Calendar.DAY_OF_YEAR);
-					int ns =
-						ev.getStartDate().getCalendar().get(
-							Calendar.DAY_OF_YEAR);
-					//System.out.println((n - ns) % ev.getPeriod());
+					int ns = ev.getStartDate().getCalendar().get(Calendar.DAY_OF_YEAR);
+					// System.out.println((n - ns) % ev.getPeriod());
 					if ((n - ns) % ev.getPeriod() == 0)
 						v.add(ev);
 				} else if (ev.getRepeat() == REPEAT_WEEKLY) {
-					if (date.getCalendar().get(Calendar.DAY_OF_WEEK)
-						== ev.getPeriod())
+					if (date.getCalendar().get(Calendar.DAY_OF_WEEK) == ev.getPeriod())
 						v.add(ev);
 				} else if (ev.getRepeat() == REPEAT_MONTHLY) {
-					if (date.getCalendar().get(Calendar.DAY_OF_MONTH)
-						== ev.getPeriod())
+					if (date.getCalendar().get(Calendar.DAY_OF_MONTH) == ev.getPeriod())
 						v.add(ev);
 				} else if (ev.getRepeat() == REPEAT_YEARLY) {
 					int period = ev.getPeriod();
-					//System.out.println(date.getCalendar().get(Calendar.DAY_OF_YEAR));
-					if ((date.getYear() % 4) == 0
-						&& date.getCalendar().get(Calendar.DAY_OF_YEAR) > 60)
+					// System.out.println(date.getCalendar().get(Calendar.DAY_OF_YEAR));
+					if ((date.getYear() % 4) == 0 && date.getCalendar().get(Calendar.DAY_OF_YEAR) > 60)
 						period++;
 
 					if (date.getCalendar().get(Calendar.DAY_OF_YEAR) == period)
@@ -224,17 +211,15 @@ public class EventsManager {
 		return getEventsForDate(CalendarDate.today());
 	}
 
-	public static Event getEvent(CalendarDate date, int hh, int mm) {
+	public static IEvent getEvent(CalendarDate date, int hh, int mm) {
 		Day d = getDay(date);
 		if (d == null)
 			return null;
 		Elements els = d.getElement().getChildElements("event");
 		for (int i = 0; i < els.size(); i++) {
 			Element el = els.get(i);
-			if ((new Integer(el.getAttribute("hour").getValue()).intValue()
-				== hh)
-				&& (new Integer(el.getAttribute("min").getValue()).intValue()
-					== mm))
+			if ((new Integer(el.getAttribute("hour").getValue()).intValue() == hh)
+					&& (new Integer(el.getAttribute("min").getValue()).intValue() == mm))
 				return new EventImpl(el);
 		}
 		return null;
@@ -242,11 +227,11 @@ public class EventsManager {
 
 	public static void removeEvent(CalendarDate date, int hh, int mm) {
 		Day d = getDay(date);
-		if (d == null)
-			d.getElement().removeChild(getEvent(date, hh, mm).getContent());
+		// not needed, always null if (d == null)
+		d.getElement().removeChild(getEvent(date, hh, mm).getContent());
 	}
 
-	public static void removeEvent(Event ev) {
+	public static void removeEvent(IEvent ev) {
 		ParentNode parent = ev.getContent().getParent();
 		parent.removeChild(ev.getContent());
 	}
@@ -277,16 +262,17 @@ public class EventsManager {
 		for (int i = 0; i < yrs.size(); i++)
 			if (yrs.get(i).getAttribute("year").getValue().equals(yy))
 				return new Year(yrs.get(i));
-		//return createYear(y);
+		// return createYear(y);
 		return null;
 	}
 
 	private static Day getDay(CalendarDate date) {
 		Year y = getYear(date.getYear());
-		if (y == null)
-			return null;
+		/*
+		 * if (y == null) return null;
+		 */
 		Month m = y.getMonth(date.getMonth());
-		if (m == null)
+		if (m == null || y == null) // combined
 			return null;
 		return m.getDay(date.getDay());
 	}
@@ -299,8 +285,7 @@ public class EventsManager {
 		}
 
 		public int getValue() {
-			return new Integer(yearElement.getAttribute("year").getValue())
-				.intValue();
+			return new Integer(yearElement.getAttribute("year").getValue()).intValue();
 		}
 
 		public Month getMonth(int m) {
@@ -309,7 +294,7 @@ public class EventsManager {
 			for (int i = 0; i < ms.size(); i++)
 				if (ms.get(i).getAttribute("month").getValue().equals(mm))
 					return new Month(ms.get(i));
-			//return createMonth(m);
+			// return createMonth(m);
 			return null;
 		}
 
@@ -342,8 +327,7 @@ public class EventsManager {
 		}
 
 		public int getValue() {
-			return new Integer(mElement.getAttribute("month").getValue())
-				.intValue();
+			return new Integer(mElement.getAttribute("month").getValue()).intValue();
 		}
 
 		public Day getDay(int d) {
@@ -354,25 +338,17 @@ public class EventsManager {
 			for (int i = 0; i < ds.size(); i++)
 				if (ds.get(i).getAttribute("day").getValue().equals(dd))
 					return new Day(ds.get(i));
-			//return createDay(d);
+			// return createDay(d);
 			return null;
 		}
 
 		private Day createDay(int d) {
 			Element el = new Element("day");
 			el.addAttribute(new Attribute("day", new Integer(d).toString()));
-			el.addAttribute(
-				new Attribute(
-					"date",
-					new CalendarDate(
-						d,
-						getValue(),
-						new Integer(
-							((Element) mElement.getParent())
-								.getAttribute("year")
-								.getValue())
-							.intValue())
-						.toString()));
+			el.addAttribute(new Attribute("date",
+					new CalendarDate(d, getValue(),
+							new Integer(((Element) mElement.getParent()).getAttribute("year").getValue()).intValue())
+									.toString()));
 
 			mElement.appendChild(el);
 			return new Day(el);
@@ -413,54 +389,24 @@ public class EventsManager {
 			return dEl;
 		}
 	}
-/*
-	static class EventsVectorSorter {
-
-		private static Vector keys = null;
-
-		private static int toMinutes(Object obj) {
-			Event ev = (Event) obj;
-			return ev.getHour() * 60 + ev.getMinute();
-		}
-
-		private static void doSort(int L, int R) { // Hoar's QuickSort
-			int i = L;
-			int j = R;
-			int x = toMinutes(keys.get((L + R) / 2));
-			Object w = null;
-			do {
-				while (toMinutes(keys.get(i)) < x) {
-					i++;
-				}
-				while (x < toMinutes(keys.get(j))) {
-					j--;
-				}
-				if (i <= j) {
-					w = keys.get(i);
-					keys.set(i, keys.get(j));
-					keys.set(j, w);
-					i++;
-					j--;
-				}
-			}
-			while (i <= j);
-			if (L < j) {
-				doSort(L, j);
-			}
-			if (i < R) {
-				doSort(i, R);
-			}
-		}
-
-		public static void sort(Vector theKeys) {
-			if (theKeys == null)
-				return;
-			if (theKeys.size() <= 0)
-				return;
-			keys = theKeys;
-			doSort(0, keys.size() - 1);
-		}
-
-	}
-*/
+	/*
+	 * static class EventsVectorSorter {
+	 * 
+	 * private static Vector keys = null;
+	 * 
+	 * private static int toMinutes(Object obj) { Event ev = (Event) obj; return
+	 * ev.getHour() * 60 + ev.getMinute(); }
+	 * 
+	 * private static void doSort(int L, int R) { // Hoar's QuickSort int i = L; int
+	 * j = R; int x = toMinutes(keys.get((L + R) / 2)); Object w = null; do { while
+	 * (toMinutes(keys.get(i)) < x) { i++; } while (x < toMinutes(keys.get(j))) {
+	 * j--; } if (i <= j) { w = keys.get(i); keys.set(i, keys.get(j)); keys.set(j,
+	 * w); i++; j--; } } while (i <= j); if (L < j) { doSort(L, j); } if (i < R) {
+	 * doSort(i, R); } }
+	 * 
+	 * public static void sort(Vector theKeys) { if (theKeys == null) return; if
+	 * (theKeys.size() <= 0) return; keys = theKeys; doSort(0, keys.size() - 1); }
+	 * 
+	 * }
+	 */
 }

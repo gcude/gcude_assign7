@@ -20,19 +20,19 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import main.java.memoranda.CurrentProject;
-import main.java.memoranda.EventNotificationListener;
 import main.java.memoranda.EventsManager;
 import main.java.memoranda.EventsScheduler;
 import main.java.memoranda.History;
-import main.java.memoranda.NoteList;
-import main.java.memoranda.Project;
-import main.java.memoranda.ProjectListener;
 import main.java.memoranda.ProjectManager;
-import main.java.memoranda.ResourcesList;
-import main.java.memoranda.TaskList;
 import main.java.memoranda.date.CalendarDate;
 import main.java.memoranda.date.CurrentDate;
 import main.java.memoranda.date.DateListener;
+import main.java.memoranda.interfaces.IEventNotificationListener;
+import main.java.memoranda.interfaces.INoteList;
+import main.java.memoranda.interfaces.IProject;
+import main.java.memoranda.interfaces.IProjectListener;
+import main.java.memoranda.interfaces.IResourcesList;
+import main.java.memoranda.interfaces.ITaskList;
 import main.java.memoranda.util.AgendaGenerator;
 import main.java.memoranda.util.CurrentStorage;
 import main.java.memoranda.util.Local;
@@ -248,21 +248,21 @@ public class AgendaPanel extends JPanel {
 					refresh(d);
 			}
 		});
-		CurrentProject.addProjectListener(new ProjectListener() {
+		CurrentProject.addProjectListener(new IProjectListener() {
 
 			public void projectChange(
-					Project prj,
-					NoteList nl,
-					TaskList tl,
-					ResourcesList rl) {
+					IProject prj,
+					INoteList nl,
+					ITaskList tl,
+					IResourcesList rl) {
 			}
 
 			public void projectWasChanged() {
 				if (isActive)
 					refresh(CurrentDate.get());
 			}});
-		EventsScheduler.addListener(new EventNotificationListener() {
-			public void eventIsOccured(main.java.memoranda.Event ev) {
+		EventsScheduler.addListener(new IEventNotificationListener() {
+			public void eventIsOccured(main.java.memoranda.interfaces.IEvent ev) {
 				if (isActive)
 					refresh(CurrentDate.get());
 			}
